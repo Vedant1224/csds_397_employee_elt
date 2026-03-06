@@ -2,12 +2,11 @@
 
 ## Overview
 
-This project implements an Employee ELT pipeline using **MySQL 8 in Docker**.
-The flow is ELT-first:
+This project implements an Employee ELT pipeline using **MySQL 8 in Docker**. The workflow is ELT-first:
 
 - Land source data as-is in `sources.employee_raw`
 - Profile data quality issues in the raw layer
-- Clean, standardize, and deduplicate in database tables under `staging`
+- Clean, standardize, and deduplicate into **normalized staging tables** under `staging`
 - Export a final cleaned dataset from `staging.vw_employee_clean`
 
 ## Repository Structure
@@ -92,19 +91,19 @@ SELECT * FROM staging.vw_employee_clean;
 " | sed 's/\t/,/g' > data/cleaned_employee_dataset.csv
 ```
 
-Observed run checks:
+## Observed Run Checks
 
-- Raw rows: `735`
+- Raw rows (`sources.employee_raw`): `735`
 - Distinct employee IDs in raw: `681`
-- Employees loaded to staging (`staging.dim_employee`): `681`
+- Employees in staging employee table: `681`
 
 ## Troubleshooting
 
 - Port conflict on `3306`: keep host mapping as `-p 3307:3306` (as above).
 - Container name conflict: run `docker rm -f csds397-mysql` and re-run `docker run`.
 - CSV path/load errors: use `docker cp data/employee_data.csv csds397-mysql:/tmp/employee_data.csv` and load from `/tmp`.
-- Authentication issues: ensure `source .env` was run and `MYSQL_ROOT_PASSWORD` matches the container setup.
+- Authentication issues: ensure `set -a; source .env; set +a` was run and `MYSQL_ROOT_PASSWORD` matches the container setup.
 
 ## Reference
 
-This project follows the same overall ideas from the course demos: batch ingestion, profiling, and normalization. Similar to the Module 4 batch ingestion examples, I load the raw CSV first into a database table and then do the cleaning inside SQL (ELT). The staging model is a simple 3NF-style layout inspired by the normalization concepts from Module 3, with a final view that denormalizes the cleaned tables for export. Module 5 discusses batch vs real-time processing; this assignment is handled as a batch pipeline since the input is a static CSV.
+This pipeline follows the same core ideas shown in the course demos: batch ingestion, profiling, and normalization. Similar to the Module 4 batch ingestion examples, the raw CSV is loaded first into a database table and then cleaned inside SQL using an ELT approach. The staging area uses a simple 3NF-style layout based on the normalization concepts from Module 3, and a final view is created to export an analysis-ready CSV. Module 5 discusses batch vs real-time processing; this assignment is handled as a batch pipeline since the input is a static CSV.
