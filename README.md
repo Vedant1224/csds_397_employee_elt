@@ -112,3 +112,7 @@ Observed run checks:
 - Container name conflict: run `docker rm -f csds397-mysql` and re-run `docker run`.
 - CSV path/load errors: use `docker cp data/employee_data.csv csds397-mysql:/tmp/employee_data.csv` and load from `/tmp`.
 - Authentication issues: ensure `source .env` was run and `MYSQL_ROOT_PASSWORD` matches the container setup.
+
+## Reference
+
+This project follows the same overall ideas from the course demos: batch ingestion, profiling, and normalization. Similar to the Module 4 batch ingestion examples, I load the raw CSV first into a database table and then do the cleaning inside SQL (ELT). The staging model is a simple 3NF-style layout inspired by the normalization concepts from Module 3, with a final view that denormalizes the cleaned tables for export. Module 5 discusses batch vs real-time processing; this assignment is handled as a batch pipeline since the input is a static CSV.
