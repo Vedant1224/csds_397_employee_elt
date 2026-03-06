@@ -98,14 +98,6 @@ Observed run checks:
 - Distinct employee IDs in raw: `681`
 - Employees loaded to staging (`staging.dim_employee`): `681`
 
-## Deliverables Checklist
-
-- [x] SQL scripts in `sql/` (raw, profiling, 3NF, transform/load, final view)
-- [x] Cleaned output dataset: `data/cleaned_employee_dataset.csv`
-- [x] Report outputs in `Report/`
-- [ ] Final report document/screenshots
-- [ ] Video link
-
 ## Troubleshooting
 
 - Port conflict on `3306`: keep host mapping as `-p 3307:3306` (as above).
