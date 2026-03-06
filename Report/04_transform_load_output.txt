@@ -1,0 +1,6 @@
+staging_employees
+681
+staging_departments
+18
+staging_countries
+10

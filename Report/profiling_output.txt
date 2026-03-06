@@ -1,0 +1,57 @@
+total_rows	distinct_employee_ids
+735	681
+employee_id	cnt
+7599	3
+9244	3
+1269	2
+1446	2
+1521	2
+1573	2
+1732	2
+2229	2
+2239	2
+2527	2
+2609	2
+3029	2
+3634	2
+3736	2
+4102	2
+4449	2
+4510	2
+4527	2
+4629	2
+4646	2
+missing_employee_id	missing_name	missing_department	missing_join_date	missing_salary
+0	38	0	0	20
+department	cnt
+Development	245
+Operations	153
+Support	119
+Sales	98
+Marketing	83
+Leadership	11
+Sls	4
+MKT	3
+SUPP	3
+SALE	3
+Supprt	2
+Supportt	2
+Marketingg	2
+Slaes	2
+Markting	2
+Mktg	1
+Saless	1
+Suport	1
+fmt_yyyy_mm_dd	fmt_mm_dd_yyyy_slash	fmt_yyyy_mm_dd_slash	fmt_mm_dd_yyyy_dash	missing
+587	48	56	44	0
+performance_rating	cnt
+4	180
+3	171
+2	169
+5	145
+1	35
+High Performer	12
+Medium	8
+Medium High	6
+Medium Low	6
+Low Performer	3
