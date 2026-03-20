@@ -1,5 +1,5 @@
 -- author Vedant Gupta
--- hw3 gold tables
+-- hw3 Code File
 
 -- create the hw3 view in staging so the gold script is fully reproducible
 CREATE DATABASE IF NOT EXISTS staging;
