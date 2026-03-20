@@ -1,14 +1,20 @@
-# CSDS 397 HW3
+# CSDS 397 Employee ELT Repository
 
-## Overview
+This repository contains the cleaned ELT pipeline from HW2 and the business-facing gold transformations from HW3.
 
-This assignment builds on the staged dataset and creates business-facing insight tables in a new schema called `gold`. 
+For HW3, the key files to review are the cleaned dataset, the SQL script in `sql_hw3`, and the exported gold CSV outputs.
+
+## HW3 Overview
+
+HW3 builds on the staged employee dataset and creates business-facing insight tables in a new schema called `gold`. The input is the provided cleaned dataset for Assignment 3 so that the same results can be reproduced consistently.
+
+The main HW3 deliverable is `sql_hw3/06_gold_analyses.sql`. That script recreates `staging.vw_employee_clean_hw3` and then builds all gold analysis tables from that standardized view.
 
 ## Repository Items Used for HW3
 
-- `data_assignment3/Assignment3_CleanData.csv`
-- `sql_hw3/06_gold_analyses.sql`
-- `hw3_trends_and_insights/gold_exports/`
+- `data_assignment3/Assignment3_CleanData.csv` - cleaned input dataset used for HW3
+- `sql_hw3/06_gold_analyses.sql` - main HW3 SQL script that creates the staging view and gold tables
+- `hw3_trends_and_insights/gold_exports/` - exported CSV outputs from the gold analysis tables
 
 ## Repository Structure
 
@@ -44,15 +50,19 @@ This assignment builds on the staged dataset and creates business-facing insight
 └── README.md
 ```
 
+- `data/`, `sql/`, and `Report/` mainly contain the earlier HW2 pipeline assets.
+- `data_assignment3/`, `sql_hw3/`, and `hw3_trends_and_insights/gold_exports/` are the primary HW3 submission materials.
+
+## HW3 Pipeline Notes
+
+`sql_hw3/06_gold_analyses.sql` first creates `staging.vw_employee_clean_hw3` and then uses that standardized view as the input for all gold analyses.
+
+Business rule note:
+`total_sales` is only retained for `Sales` employees, and `support_rating` is only retained for `Support` employees. A value of `0` is treated as not applicable in those role-specific fields.
+
 ## HW3 Run Steps
 
-- Start the MySQL container and load environment variables.
-- Copy the Assignment 3 cleaned dataset into the container.
-- Create and load the Assignment 3 source table in `sources`.
-- Run the HW3 SQL to create the staging view and gold tables.
-- Export each gold table to CSV.
-
-## HW3 Quickstart
+HW3 assumes the MySQL Docker setup from the earlier assignment already exists, so these steps start the existing container rather than creating a new one.
 
 ```bash
 # 1) Start existing container and load env
@@ -110,97 +120,12 @@ docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --
 docker stop csds397-mysql
 ```
 
-## Notes
+## HW2 Background
 
-- `sql_hw3/06_gold_analyses.sql` creates `staging.vw_employee_clean_hw3` and then builds the final `gold` analysis tables.
-- The HW3 staging view keeps `total_sales` only for `Sales` employees and `support_rating` only for `Support` employees, treating `0` as not applicable in those role-specific fields.
+HW2 established the original employee ELT pipeline in MySQL using Docker. That earlier work loads raw employee data into `sources`, profiles data quality issues, transforms the dataset into normalized staging tables, and exports a cleaned final dataset from `staging.vw_employee_clean`. HW3 builds directly on that foundation by taking a cleaned employee dataset and producing business-facing gold analysis tables.
 
-
-# CSDS 397 HW2 - Employee ELT Pipeline
-
-## Overview
-
-This project implements an Employee ELT pipeline using MySQL 8 in Docker. The workflow is ELT-first.
-
-- Land source data as-is in `sources.employee_raw`
-- Profile data quality issues in the raw layer
-- Clean, standardize, and deduplicate into normalized staging tables under `staging`
-- Export a final cleaned dataset from `staging.vw_employee_clean`
-
-## Repository Structure
-
-```text
-.
-├── data/
-│   ├── employee_data.csv
-│   └── cleaned_employee_dataset.csv
-├── sql/
-│   ├── 01_create_sources_raw.sql
-│   ├── 02_profiling.sql
-│   ├── 03_create_staging_3nf.sql
-│   ├── 04_transform_load_staging.sql
-│   └── 05_final_export_view.sql
-├── Report/
-│   ├── profiling_output.txt
-│   ├── 03_create_staging_output.txt
-│   ├── 04_transform_load_output.txt
-│   └── 05_final_view_output.txt
-├── .gitignore
-└── README.md
-```
-
-## Prerequisites
-
-- Docker Desktop
-- Git
-- Terminal
-
-Create a local `.env` file in the repo root with:
-
-```bash
-MYSQL_ROOT_PASSWORD=your_password_here
-```
-
-`.env` is gitignored and should not be committed.
-
-## Quickstart
-
-```bash
-docker run --name csds397-mysql --env-file .env -p 3307:3306 -d mysql:8 --secure-file-priv=/tmp
-
-set -a; source .env; set +a
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql/01_create_sources_raw.sql
-
-docker cp data/employee_data.csv csds397-mysql:/tmp/employee_data.csv
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot -e "
-USE sources;
-TRUNCATE TABLE employee_raw;
-LOAD DATA INFILE '/tmp/employee_data.csv'
-INTO TABLE employee_raw
-FIELDS TERMINATED BY ',' ENCLOSED BY '\"'
-LINES TERMINATED BY '\n'
-IGNORE 1 LINES
-(employee_id, name, age, department, date_of_joining, years_of_experience, country, salary, performance_rating, total_sales, support_rating);
-"
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql/02_profiling.sql
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql/03_create_staging_3nf.sql
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql/04_transform_load_staging.sql
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql/05_final_export_view.sql
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "
-SELECT * FROM staging.vw_employee_clean;
-" | sed 's/\t/,/g' > data/cleaned_employee_dataset.csv
-```
-
-## Observed Run Checks
+## HW2 Reference
 
 - Raw rows (`sources.employee_raw`): `735`
 - Distinct employee IDs in raw: `681`
 - Employees in staging employee table: `681`
-
