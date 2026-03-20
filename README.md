@@ -115,6 +115,7 @@ docker stop csds397-mysql
 - `sql_hw3/06_gold_analyses.sql` creates `staging.vw_employee_clean_hw3` and then builds the final `gold` analysis tables.
 - The HW3 staging view keeps `total_sales` only for `Sales` employees and `support_rating` only for `Support` employees, treating `0` as not applicable in those role-specific fields.
 
+
 # CSDS 397 HW2 - Employee ELT Pipeline
 
 ## Overview
