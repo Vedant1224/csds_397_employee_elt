@@ -2,7 +2,7 @@
 
 ## Overview
 
-This assignment builds on the staged dataset and creates business-facing insight tables in a new schema called `gold`. The input is the provided cleaned dataset for Assignment 3 so that the same results can be reproduced consistently.
+This assignment builds on the staged dataset and creates business-facing insight tables in a new schema called `gold`. 
 
 ## Repository Items Used for HW3
 
