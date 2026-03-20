@@ -1,4 +1,4 @@
-# CSDS 397 HW3 - Gold Transformations
+# CSDS 397 HW3
 
 ## Overview
 
