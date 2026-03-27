@@ -1,131 +1,72 @@
 # CSDS 397 Employee ELT Repository
 
-This repository contains the cleaned ELT pipeline from HW2 and the business-facing gold transformations from HW3.
+This repository contains the HW2 foundational ELT pipeline, the HW3 SQL-based gold transformations, and the HW4 dbt reimplementation of the same analytical transformations. The main current deliverables are the HW3 SQL work and the HW4 dbt project plus exported outputs.
 
-For HW3, the key files to review are the cleaned dataset, the SQL script in `sql_hw3`, and the exported gold CSV outputs.
+## HW4 Overview
 
-## HW3 Overview
+HW4 re-implements the six employee insight transformations from the previous assignment using dbt. The cleaned dataset is loaded into PostgreSQL, dbt models build modular and reusable transformation tables, and the transformed tables are also exported as CSV outputs for submission and review.
 
-HW3 builds on the staged employee dataset and creates business-facing insight tables in a new schema called `gold`. The input is the provided cleaned dataset for Assignment 3 so that the same results can be reproduced consistently.
+## HW4 Key Files
 
-The main HW3 deliverable is `sql_hw3/06_gold_analyses.sql`. That script recreates `staging.vw_employee_clean_hw3` and then builds all gold analysis tables from that standardized view.
+These are the primary HW4 submission materials:
 
-## Repository Items Used for HW3
-
-- `data_assignment3/Assignment3_CleanData.csv` - cleaned input dataset used for HW3
-- `sql_hw3/06_gold_analyses.sql` - main HW3 SQL script that creates the staging view and gold tables
-- `hw3_trends_and_insights/gold_exports/` - exported CSV outputs from the gold analysis tables
+- `hw4_dbt/employee_hw4/dbt_project.yml` - dbt project configuration
+- `hw4_dbt/employee_hw4/models/sources.yml` - source definitions for the HW4 dbt models
+- `hw4_dbt/employee_hw4/models/` - the six dbt models that recreate the analytical transformations
+- `hw4_outputs/` - exported CSV outputs generated from the HW4 transformed tables
 
 ## Repository Structure
 
 ```text
 .
 ├── data/
-│   ├── employee_data.csv
-│   └── cleaned_employee_dataset.csv
 ├── data_assignment3/
-│   └── Assignment3_CleanData.csv
 ├── hw3_trends_and_insights/
 │   └── gold_exports/
-│       ├── performance_by_salary_analysis.csv
-│       ├── salary_to_country_analysis.csv
-│       ├── salary_to_department_analysis.csv
-│       ├── salary_to_tenure_analysis.csv
-│       ├── sales_to_salary_analysis.csv
-│       └── support_rating_to_salary_analysis.csv
+├── hw4_dbt/
+│   └── employee_hw4/
+│       ├── dbt_project.yml
+│       ├── README.md
+│       └── models/
+│           ├── sources.yml
+│           ├── performance_by_salary_analysis.sql
+│           ├── salary_to_country_analysis.sql
+│           ├── salary_to_department_analysis.sql
+│           ├── salary_to_tenure_analysis.sql
+│           ├── sales_to_salary_analysis.sql
+│           └── support_rating_to_salary_analysis.sql
+├── hw4_outputs/
+│   ├── performance_by_salary_analysis.csv
+│   ├── salary_to_country_analysis.csv
+│   ├── salary_to_department_analysis.csv
+│   ├── salary_to_tenure_analysis.csv
+│   ├── sales_to_salary_analysis.csv
+│   └── support_rating_to_salary_analysis.csv
+├── Report/
 ├── sql/
-│   ├── 01_create_sources_raw.sql
-│   ├── 02_profiling.sql
-│   ├── 03_create_staging_3nf.sql
-│   ├── 04_transform_load_staging.sql
-│   └── 05_final_export_view.sql
 ├── sql_hw3/
 │   └── 06_gold_analyses.sql
-├── Report/
-│   ├── profiling_output.txt
-│   ├── 03_create_staging_output.txt
-│   ├── 04_transform_load_output.txt
-│   └── 05_final_view_output.txt
-├── .gitignore
 └── README.md
 ```
 
-- `data/`, `sql/`, and `Report/` mainly contain the earlier HW2 pipeline assets.
-- `data_assignment3/`, `sql_hw3/`, and `hw3_trends_and_insights/gold_exports/` are the primary HW3 submission materials.
+- `hw4_dbt/employee_hw4/` and `hw4_outputs/` contain the newest HW4 submission materials.
+- `sql_hw3/` and `hw3_trends_and_insights/gold_exports/` keep the earlier HW3 SQL implementation and outputs for reference.
+- `sql/`, `data/`, and `Report/` contain the original HW2 pipeline assets.
 
-## HW3 Pipeline Notes
+## HW4 Pipeline Notes
 
-`sql_hw3/06_gold_analyses.sql` first creates `staging.vw_employee_clean_hw3` and then uses that standardized view as the input for all gold analyses.
+HW4 uses PostgreSQL as the target warehouse. dbt reads from the source table `public.employee_clean_hw4`, and the six dbt models recreate the same business-facing insight tables produced earlier in HW3. These outputs are materialized as tables and then exported to CSV, showing the same transformation logic implemented in a more modular and reusable framework than plain SQL scripts.
 
-Business rule note:
-`total_sales` is only retained for `Sales` employees, and `support_rating` is only retained for `Support` employees. A value of `0` is treated as not applicable in those role-specific fields.
+## HW3 Overview
 
-## HW3 Run Steps
-
-HW3 assumes the MySQL Docker setup from the earlier assignment already exists, so these steps start the existing container rather than creating a new one.
-
-```bash
-# 1) Start existing container and load env
-docker start csds397-mysql
-set -a; source .env; set +a
-
-# 2) Copy the cleaned dataset into the container
-docker cp data_assignment3/Assignment3_CleanData.csv csds397-mysql:/tmp/Assignment3_CleanData.csv
-
-# 3) Create the sources table for the provided cleaned data
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot -e "
-CREATE DATABASE IF NOT EXISTS sources;
-DROP TABLE IF EXISTS sources.employee_clean_hw3;
-CREATE TABLE sources.employee_clean_hw3 (
-  employee_id INT,
-  name TEXT,
-  age INT,
-  department TEXT,
-  date_of_joining DATE,
-  years_of_experience INT,
-  country TEXT,
-  salary DECIMAL(12,2),
-  performance_rating INT,
-  total_sales DECIMAL(14,2),
-  support_rating INT
-);
-"
-
-# 4) Load the CSV into sources.employee_clean_hw3
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot -e "
-TRUNCATE TABLE sources.employee_clean_hw3;
-LOAD DATA INFILE '/tmp/Assignment3_CleanData.csv'
-INTO TABLE sources.employee_clean_hw3
-FIELDS TERMINATED BY ',' ENCLOSED BY '\"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 LINES
-(employee_id, name, age, department, date_of_joining, years_of_experience, country, salary, performance_rating, total_sales, support_rating);
-SELECT COUNT(*) AS hw3_clean_rows FROM sources.employee_clean_hw3;
-"
-
-# 5) Run the HW3 SQL to create the staging view and gold tables
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot < sql_hw3/06_gold_analyses.sql
-
-# 6) Export each gold table to CSV
-mkdir -p hw3_trends_and_insights/gold_exports
-
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.salary_to_department_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/salary_to_department_analysis.csv
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.salary_to_tenure_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/salary_to_tenure_analysis.csv
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.performance_by_salary_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/performance_by_salary_analysis.csv
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.salary_to_country_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/salary_to_country_analysis.csv
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.sales_to_salary_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/sales_to_salary_analysis.csv
-docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" csds397-mysql mysql -uroot --batch --raw -e "SELECT * FROM gold.support_rating_to_salary_analysis;" | sed 's/\t/,/g' > hw3_trends_and_insights/gold_exports/support_rating_to_salary_analysis.csv
-
-# 7) Stop the container when finished
-docker stop csds397-mysql
-```
+HW3 built six gold tables in MySQL from the cleaned Assignment 3 dataset. The main file is `sql_hw3/06_gold_analyses.sql`, and the resulting outputs are stored in `hw3_trends_and_insights/gold_exports/`.
 
 ## HW2 Background
 
-HW2 established the original employee ELT pipeline in MySQL using Docker. That earlier work loads raw employee data into `sources`, profiles data quality issues, transforms the dataset into normalized staging tables, and exports a cleaned final dataset from `staging.vw_employee_clean`. HW3 builds directly on that foundation by taking a cleaned employee dataset and producing business-facing gold analysis tables.
+HW2 created the original employee ELT pipeline in MySQL using Docker. Raw employee data was loaded, profiled, transformed into staging tables, and exported as a cleaned dataset. HW3 and HW4 build conceptually on that earlier work.
 
-## HW2 Reference
+## Assignment Mapping
 
-- Raw rows (`sources.employee_raw`): `735`
-- Distinct employee IDs in raw: `681`
-- Employees in staging employee table: `681`
+- HW2 -> foundational ELT pipeline
+- HW3 -> SQL gold transformations
+- HW4 -> dbt reimplementation of analytical transformations
