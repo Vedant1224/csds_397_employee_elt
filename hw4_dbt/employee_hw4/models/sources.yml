@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: employee_source
+    database: employee_hw4_db
+    schema: public
+    tables:
+      - name: employee_clean_hw4

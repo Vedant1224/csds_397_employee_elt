@@ -1,0 +1,4 @@
+sales_bucket,employee_count,avg_salary,avg_total_sales
+0 to 49999,18,89263.94,35252.89
+50000 to 99999,52,119139.10,75527.33
+100000 to 149999,33,150854.70,121226.58
