@@ -1,10 +1,10 @@
 # CSDS 397 Employee ELT Repository
 
-This repository contains the HW2 foundational ELT pipeline, the HW3 SQL-based gold transformations, the HW4 dbt reimplementation of those analytical transformations, and the HW5 Apache Airflow orchestration of the earlier pipeline tasks. The main deliverables are the HW5 Airflow DAG and supporting assets, the HW4 dbt project, and the earlier HW3 SQL work for reference.
+This repository is currently centered on HW5, which uses Apache Airflow to orchestrate the employee pipeline tasks developed in earlier assignments. The primary deliverables are the HW5 DAG, its supporting scripts and SQL transformations, and the Airflow UI screenshots, with HW4, HW3, and HW2 retained below as reference context.
 
 ## HW5 Overview
 
-HW5 adds Apache Airflow orchestration on top of the earlier employee pipeline work. It reuses the prior ingestion, cleaning and normalization, and transformation logic, and schedules those steps through a single DAG instead of running them manually.
+HW5 adds Apache Airflow orchestration on top of the earlier employee pipeline work. It reuses the prior ingestion, cleaning, normalization, and transformation logic, and schedules those steps through a single DAG instead of running them manually.
 
 The Airflow DAG orchestrates dependencies in this order:
 
@@ -27,32 +27,10 @@ These are the primary HW5 submission materials:
 
 HW5 was run locally with Airflow standalone and orchestrates the MySQL-based employee pipeline tasks from the earlier assignments. The DAG executes ingestion first, then cleaning and normalization, and then the six downstream transformation tasks in parallel after the cleaned layer is ready.
 
-## HW4 Overview
-
-HW4 re-implements the six employee insight transformations from the previous assignment using dbt. The cleaned dataset is loaded into PostgreSQL, dbt models build modular and reusable transformation tables, and the transformed tables are also exported as CSV outputs for submission and review.
-
-## HW4 Key Files
-
-These are the primary HW4 submission materials:
-
-- `hw4_dbt/employee_hw4/dbt_project.yml` - dbt project configuration
-- `hw4_dbt/employee_hw4/models/sources.yml` - source definitions for the HW4 dbt models
-- `hw4_dbt/employee_hw4/models/` - the six dbt models that recreate the analytical transformations
-- `hw4_outputs/` - exported CSV outputs generated from the HW4 transformed tables
-
 ## Repository Structure
 
 ```text
 .
-├── data/
-├── data_assignment3/
-├── hw3_trends_and_insights/
-│   └── gold_exports/
-├── hw4_dbt/
-│   └── employee_hw4/
-│       ├── dbt_project.yml
-│       └── models/
-├── hw4_outputs/
 ├── hw5_airflow/
 │   ├── dags/
 │   │   └── employee_pipeline_dag.py
@@ -79,6 +57,15 @@ These are the primary HW4 submission materials:
 │       ├── salary_to_tenure_analysis.sql
 │       ├── sales_to_salary_analysis.sql
 │       └── support_rating_to_salary_analysis.sql
+├── data/
+├── data_assignment3/
+├── hw3_trends_and_insights/
+│   └── gold_exports/
+├── hw4_dbt/
+│   └── employee_hw4/
+│       ├── dbt_project.yml
+│       └── models/
+├── hw4_outputs/
 ├── Report/
 ├── sql/
 ├── sql_hw3/
@@ -91,21 +78,17 @@ These are the primary HW4 submission materials:
 - `sql_hw3/` and `hw3_trends_and_insights/gold_exports/` keep the HW3 SQL implementation and outputs for reference.
 - `sql/`, `data/`, and `Report/` contain the original HW2 pipeline assets.
 
-## HW4 Pipeline Notes
+## Earlier Assignments
 
-HW4 uses PostgreSQL as the target warehouse. dbt reads from the source table `public.employee_clean_hw4`, and the six dbt models recreate the same business-facing insight tables produced earlier in HW3. These outputs are materialized as tables and then exported to CSV, showing the same transformation logic implemented in a more modular and reusable framework than plain SQL scripts.
+HW4 re-implemented the six employee insight transformations in dbt using PostgreSQL as the target warehouse. The core project lives in `hw4_dbt/employee_hw4/`, where dbt reads from `public.employee_clean_hw4` and materializes the same business-facing outputs that were previously built in SQL. Exported CSV results are stored in `hw4_outputs/`.
 
-## HW3 Overview
+HW3 built six gold tables in MySQL from the cleaned Assignment 3 dataset. Its main SQL deliverable is `sql_hw3/06_gold_analyses.sql`, and the resulting outputs are stored in `hw3_trends_and_insights/gold_exports/`.
 
-HW3 built six gold tables in MySQL from the cleaned Assignment 3 dataset. The main file is `sql_hw3/06_gold_analyses.sql`, and the resulting outputs are stored in `hw3_trends_and_insights/gold_exports/`.
-
-## HW2 Background
-
-HW2 created the original employee ELT pipeline in MySQL using Docker. Raw employee data was loaded, profiled, transformed into staging tables, and exported as a cleaned dataset. HW3, HW4, and HW5 build conceptually on that earlier work.
+HW2 created the original employee ELT pipeline in MySQL using Docker. Raw employee data was loaded, profiled, transformed into staging tables, and exported as a cleaned dataset that later assignments build on.
 
 ## Assignment Mapping
 
-- HW2: foundational ELT pipeline
-- HW3: SQL gold transformations
-- HW4: dbt reimplementation of analytical transformations
 - HW5: Airflow orchestration of ingestion, cleaning, and transformation tasks
+- HW4: dbt reimplementation of analytical transformations
+- HW3: SQL gold transformations
+- HW2: foundational ELT pipeline
