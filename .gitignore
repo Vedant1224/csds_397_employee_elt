@@ -1,3 +1,5 @@
 .DS_Store
 
 .env
+hw5_airflow/dags/__pycache__/
+hw5_airflow/simple_auth_manager_passwords.json.generated
